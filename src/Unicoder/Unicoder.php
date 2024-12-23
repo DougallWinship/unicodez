@@ -8,7 +8,9 @@ class Unicoder {
 
     const int DEFAULT_ENCODE_BITS = 8;
 
-    const int DEFAULT_SEED = 1243;
+    const int DEFAULT_SEED = 1;
+
+    const string SHEBANG_DELIMITER = "\u{200B}";
 
     const string AUTOLOADER_EXTENSION = "uphp";
 
@@ -61,6 +63,20 @@ class Unicoder {
     private int $comboLength;
     private array $mappings;
     private array $flippedMappings;
+    private string $content;
+
+    /**
+     * @param string $encoded
+     * @return self
+     * @throws \Exception
+     */
+    public static function ShebangUnicoder(string $encoded): self
+    {
+        list ($seed, $type, $content) = self::readShebang($encoded);
+        $unicoder = new Unicoder($type, $seed);
+        $unicoder->content = $content;
+        return $unicoder;
+    }
 
     /**
      * @param string $type
@@ -70,30 +86,18 @@ class Unicoder {
      */
     public function __construct(string $type, int $seed=self::DEFAULT_SEED, int $bits=self::DEFAULT_ENCODE_BITS) {
 
-        $this->unicodeSet = match($type) {
-            self::TYPE_FLAGS => CountryCodes::getUnicodeSet(),
-            self::TYPE_OGHAM => $this->generateUnicodeSet(0x1680, 0x169A),
-            self::TYPE_RUNIC => $this->generateUnicodeSet(0x16A0, 0x16EA),
-            self::TYPE_BRAILLE => $this->generateUnicodeSet(0x2800, 0x28FF),
-            self::TYPE_ARROWS => $this->generateUnicodeSet(0x2190, 0x21FF),
-            self::TYPE_MATHS_OPERATORS => $this->generateUnicodeSet(0x2200, 0x22FF),
-            self::TYPE_BOX_DRAWING => $this->generateUnicodeSet(0x2500, 0x257F),
-            self::TYPE_GEOMETRIC_SHAPES => $this->generateUnicodeSet(0x25A0, 0x25FF),
-            self::TYPE_PLANETS => $this->generateUnicodeSet(0x263C, 0x2647),
-            self::TYPE_ZODIAC => $this->generateUnicodeSet(0x2648, 0x2653),
-            self::TYPE_CHESS => $this->generateUnicodeSet(0x2654, 0x265F),
-            self::TYPE_CARD_SUITES => $this->generateUnicodeSet(0x2660, 0x2667),
-            self::TYPE_MUSIC_NOTES => $this->generateUnicodeSet(0x2669, 0x266E),
-            self::TYPE_DICE => $this->generateUnicodeSet(0x2680, 0x2685),
-            self::TYPE_CUNIEFORM => $this->generateUnicodeSet(0x12000, 0x12399),
-            self::TYPE_HEIROGLYPHS => $this->generateUnicodeSet(0x13000, 0x1342E),
-            self::TYPE_EMOTICONS => $this->generateUnicodeSet(0x1F600, 0x1F64F),
-            self::TYPE_TRANSPORT => $this->generateUnicodeSet(0x1F680, 0x1F6C5),
-            self::TYPE_ALCHEMICAL => $this->generateUnicodeSet(0x1F700, 0x1F773),
-            default => null
-        };
+        if ($type === self::TYPE_FLAGS) {
+            $this->unicodeSet = CountryCodes::getUnicodeSet();
+        }
+        else {
+            $startEnd = $this->getUnicodeRange($type);
+            if (!$startEnd) {
+                throw new \Exception("Unrecognised type $type");
+            }
+            $this->unicodeSet = $this->generateUnicodeSet($startEnd[0], $startEnd[1]);
+        }
         if (!$this->unicodeSet) {
-            throw new \Exception("Unrecognised type $type");
+
         }
         $this->type = $type;
         $this->seed = $seed;
@@ -108,9 +112,38 @@ class Unicoder {
         $this->generateBindings();
     }
 
+    public static function getUnicodeRange($type): ?array {
+        return match($type) {
+            self::TYPE_OGHAM => [0x1680, 0x169A],
+            self::TYPE_RUNIC => [0x16A0, 0x16EA],
+            self::TYPE_BRAILLE => [0x2800, 0x28FF],
+            self::TYPE_ARROWS => [0x2190, 0x21FF],
+            self::TYPE_MATHS_OPERATORS => [0x2200, 0x22FF],
+            self::TYPE_BOX_DRAWING => [0x2500, 0x257F],
+            self::TYPE_GEOMETRIC_SHAPES => [0x25A0, 0x25FF],
+            self::TYPE_PLANETS => [0x263C, 0x2647],
+            self::TYPE_ZODIAC => [0x2648, 0x2653],
+            self::TYPE_CHESS => [0x2654, 0x265F],
+            self::TYPE_CARD_SUITES => [0x2660, 0x2667],
+            self::TYPE_MUSIC_NOTES => [0x2669, 0x266E],
+            self::TYPE_DICE => [0x2680, 0x2685],
+            self::TYPE_CUNIEFORM => [0x12000, 0x12399],
+            self::TYPE_HEIROGLYPHS => [0x13000, 0x1342E],
+            self::TYPE_EMOTICONS => [0x1F600, 0x1F64F],
+            self::TYPE_TRANSPORT => [0x1F680, 0x1F6C5],
+            self::TYPE_ALCHEMICAL => [0x1F700, 0x1F773],
+            default => null
+        };
+    }
+
     public function getType(): string
     {
         return $this->type;
+    }
+
+    public function getSeed(): int
+    {
+        return $this->seed;
     }
 
     public function getUnicodeSet(): array
@@ -118,12 +151,17 @@ class Unicoder {
         return $this->unicodeSet;
     }
 
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
     /**
      * @param int $from
      * @param int $to
      * @return array
      */
-    private function generateUnicodeSet(int $from, int $to): array
+    private static function generateUnicodeSet(int $from, int $to): array
     {
         $set = [];
         for ($codePoint = $from; $codePoint <= $to; $codePoint++) {
@@ -206,6 +244,86 @@ class Unicoder {
             $encoded .= $this->mappings[$binary];
         }
         return $encoded;
+    }
+
+    /**
+     * @param string $input
+     * @return array
+     * @throws \Exception
+     */
+    public static function readShebang(string $input): array
+    {
+        // Find the position of the delimiter
+        $position = mb_strpos($input, self::SHEBANG_DELIMITER, 0, 'UTF-8');
+
+        if ($position === false) {
+            throw new \Exception('Shebang Delimiter not found in input.');
+        }
+
+        $shebang = mb_substr($input, 0, $position, 'UTF-8');
+        $firstCharacter = mb_substr($input, 0, 1, 'UTF-8');
+        $content = mb_substr($input, $position+1, null, 'UTF-8');
+        list($type, $set) = self::sniffTypeSet($firstCharacter);
+        $base = count($set);
+        $mapCharsToIndices = array_flip($set);
+        $seed = 0;
+        $length = mb_strlen($shebang,'UTF-8');
+        for ($idx=0; $idx<$length; $idx++) {
+            $char = mb_substr($shebang, $idx, 1, 'UTF-8');
+            if (!isset($mapCharsToIndices[$char])) {
+                throw new \Exception("Invalid character in shebang '{$char}'");
+            }
+            $seed = $seed * $base + $mapCharsToIndices[$char];
+        }
+        return [$seed, $type, $content];
+    }
+
+    /**
+     * @param string $char
+     * @return array
+     * @throws \Exception
+     */
+    private static function sniffTypeSet(string $char): array
+    {
+        if (mb_strlen($char)!==1) {
+            throw new \Exception('A single character should be provided to sniffType');
+        }
+        $charCode = mb_ord($char, 'UTF-8');
+        for ($i=0; $i<count(self::ALL_TYPES); $i++) {
+            $checkType = self::ALL_TYPES[$i];
+            list($start, $end) = self::getUnicodeRange($checkType);
+            if ($charCode >= $start && $charCode <= $end) {
+                return [$checkType, self::generateUnicodeSet($start, $end)];
+            }
+        }
+        $countryCodes = CountryCodes::getUnicodeSet();
+        if (in_array($charCode, $countryCodes)) {
+            return [self::TYPE_FLAGS, $countryCodes];
+        }
+        throw new \Exception("Failed to determine type!");
+    }
+
+    public function generateShebang(): string
+    {
+        list($start, $end) = self::getUnicodeRange($this->type);
+
+        $base = $end - $start;
+        $shebang = '';
+
+        $set = self::generateUnicodeSet($start, $end);
+
+        do {
+            $remainder = $this->seed % $base;
+            $shebang = $set[$remainder] . $shebang;
+            $seed = intdiv($this->seed, $base);
+        } while ($seed > 0);
+
+//        $minLength = ceil(log(10000, $base)); // 4 digits in base-N
+//        while (mb_strlen($shebang, 'UTF-8') < $minLength) {
+//            $shebang = $set[0] . $shebang; // Pad with the first character in the set
+//        }
+
+        return $shebang.self::SHEBANG_DELIMITER;
     }
 
     /**
