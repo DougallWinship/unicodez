@@ -1,8 +1,10 @@
 # Unicoder
 Encode/decode text (8-bit max currently) to/from various Unicode character ranges using a seed ... for shits & giggles!
 
-For example "hello!" encoded as unicode flags with a seed of 1 generates
-🇪🇸🇳🇿🇸🇳🇰🇭🇹🇿🇲🇳🇹🇿🇲🇳🇩🇪🇭🇺🇻🇪🇸🇴
+For example "hello!" encoded as unicode flags with a seed of 1 generates:  
+🇪🇸🇳🇿🇸🇳🇰🇭🇹🇿🇲🇳🇹🇿🇲🇳🇩🇪🇭🇺🇻🇪🇸🇴   
+... or runic:   
+ᛖᚰᛟᛩᚨᛓᚨᛓᛁᛜᛣᚷ
 
 The project uses composer to generate a PSR-4 autoloader, so to get started
 1. composer install
@@ -16,3 +18,6 @@ The project uses composer to generate a PSR-4 autoloader, so to get started
 - there is a basic php autoloader which decodes/loads encoded .uphp classes on the fly
   see [autoload-test.php](./public/autoload-test.php)
 - alternatively there is a direct include method 
+
+## ToDo:
+- add shebang to start of encoded .uphp files to indicate both the range & seed
