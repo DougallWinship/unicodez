@@ -1,5 +1,5 @@
 # Unicoder
-Encode/decode text (8-bit max currently) to/from various Unicode character ranges using a seed for shits & giggles!
+Encode/decode text (8-bit max currently) to/from various Unicode character ranges using a seed ... for shits & giggles!
 
 For example "hello!" encoded as unicode flags with a seed of 1 generates
 🇪🇸🇳🇿🇸🇳🇰🇭🇹🇿🇲🇳🇹🇿🇲🇳🇩🇪🇭🇺🇻🇪🇸🇴
