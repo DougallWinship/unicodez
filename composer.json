@@ -1,0 +1,8 @@
+{
+    "autoload": {
+        "psr-4": {"Unicoder\\": "src/Unicoder/"}
+    },
+    "require": {
+      "ext-mbstring": "*"
+    }
+}
