@@ -10,7 +10,7 @@ class Unicoder {
 
     const int DEFAULT_SEED = 1;
 
-    const string SHEBANG_DELIMITER = "\u{200B}";
+    const string SHEBANG_DELIMITER = "\u{FEFF}";
 
     const string AUTOLOADER_EXTENSION = "uphp";
 
@@ -97,7 +97,7 @@ class Unicoder {
             $this->unicodeSet = $this->generateUnicodeSet($startEnd[0], $startEnd[1]);
         }
         if (!$this->unicodeSet) {
-
+            throw new \Exception("Unrecognised unicoder type $type");
         }
         $this->type = $type;
         $this->seed = $seed;
@@ -156,6 +156,11 @@ class Unicoder {
         return $this->content;
     }
 
+    public function getBits(): int
+    {
+        return $this->bits;
+    }
+
     /**
      * @param int $from
      * @param int $to
@@ -177,7 +182,8 @@ class Unicoder {
      */
     private function determineComboLength(int $setSize, int $numBits): int
     {
-        $requiredCombinations = pow(2, $numBits);  // e.g., 65536 for 16-bit encoding
+        // e.g., 65536 for 16-bit encoding
+        $requiredCombinations = pow(2, $numBits);
         $comboLength = 1;
 
         while (pow($setSize, $comboLength) < $requiredCombinations) {
@@ -307,15 +313,17 @@ class Unicoder {
     {
         list($start, $end) = self::getUnicodeRange($this->type);
 
-        $base = $end - $start;
+        $base = $end - $start + 1;
         $shebang = '';
 
         $set = self::generateUnicodeSet($start, $end);
+        $base = count($set);
 
+        $seed = $this->seed;
         do {
-            $remainder = $this->seed % $base;
+            $remainder = $seed % $base;
             $shebang = $set[$remainder] . $shebang;
-            $seed = intdiv($this->seed, $base);
+            $seed = intdiv($seed, $base);
         } while ($seed > 0);
 
 //        $minLength = ceil(log(10000, $base)); // 4 digits in base-N
