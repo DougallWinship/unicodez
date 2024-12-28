@@ -1,23 +1,34 @@
 # Unicoder
-Encode/decode text (8-bit max currently) to/from various Unicode character ranges using a seed ... for shits & giggles!
+Encode/decode text to/from various Unicode character ranges using a seed ... for shits & giggles!
+Yup this is a PHP project, live with it.
+Additionally, a pseudo-shebang indicates both the encoding range (set) and the seed used.
 
-For example "hello!" encoded as unicode flags with a seed of 1 generates:  
-🇪🇸🇳🇿🇸🇳🇰🇭🇹🇿🇲🇳🇹🇿🇲🇳🇩🇪🇭🇺🇻🇪🇸🇴   
-... or runic:   
-ᛖᚰᛟᛩᚨᛓᚨᛓᛁᛜᛣᚷ
-
+## Getting started
 The project uses composer to generate a PSR-4 autoloader, so to get started
-1. composer install
-2. mount /public on your local dev webserver
+```
+composer install
+```
 
-## Sets
-- the sets are defined as constants in the [Unicoder class](./src/Unicoder/Unicoder.php)
+To play with the dumbness either mounting /public on a local webserver or use the PHP webserver:
+```
+cd public
+php -S localhost:8000
+```
 
-## Auto-loading
-- encoded php files currently use the .uphp extension
-- there is a basic php autoloader which decodes/loads encoded .uphp classes on the fly
-  see [autoload-test.php](./public/autoload-test.php)
-- alternatively there is a direct include method 
+and look at:
+```
+Encoder/Decoder (/unicoder-decoder.php) : how to translate to/from the unicoder text
+Encode/Decode Test (/encode-decode-test.php) : basic html test of each set
+Autoload Test (/autoload-test.php) : show unicoder auto-loading in practice!
+```
 
-## ToDo:
-- add shebang to start of encoded .uphp files to indicate both the range & seed
+## PHP 
+### Basic encoding/decoding
+```
+$unicoder = new Unicoder();
+$encoded = $unicoder->encode("This is some text", Mappings::TEXT_RUNIC, 123);
+$decoded = $unicoder->decode($encoded)
+```
+## Include/Autoloader
+While basic text encoding/decoding is fine on its own for any arbitrary text, since this is implemented in PHP an
+autoloader is also supplied for your convenience:

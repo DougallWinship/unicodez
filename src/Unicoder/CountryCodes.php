@@ -231,6 +231,8 @@ class CountryCodes {
 
     private static ?array $sortedCountries = null;
 
+    private static ?array $set = null;
+
     /**
      * @return array
      */
@@ -279,10 +281,13 @@ class CountryCodes {
     public static function getUnicodeSet(): array
     {
         $codesByCountry = self::getCodesByCountry();
-        $set=[];
-        foreach ($codesByCountry as $code) {
-            $set[] = self::isoToUnicodeFlag($code);
+        if (self::$set===null) {
+            $set = [];
+            foreach ($codesByCountry as $code) {
+                $set[] = self::isoToUnicodeFlag($code);
+            }
+            self::$set = $set;
         }
-        return $set;
+        return self::$set;
     }
 }
