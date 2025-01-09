@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Unicoder;
+namespace Unicodez;
 
 class Mappings {
 
-    const int DEFAULT_ENCODE_BITS = 16;
+    const int DEFAULT_ENCODE_BITS = 8;
 
     const string TYPE_FLAGS = "Flags";
     const string TYPE_OGHAM = "Ogham";

@@ -1,6 +1,6 @@
 {
     "autoload": {
-        "psr-4": {"Unicoder\\": "src/Unicoder/"}
+        "psr-4": {"Unicodez\\": "src/Unicodez/"}
     },
     "require": {
       "ext-mbstring": "*"

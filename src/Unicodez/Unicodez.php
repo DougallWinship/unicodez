@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Unicoder;
+namespace Unicodez;
 
-class Unicoder {
+class Unicodez {
 
     const int DEFAULT_SEED = 1;
 
@@ -144,6 +144,5 @@ class Unicoder {
         $decoded = $mapping->decode($content);
         eval($decoded);
         return true;
-
     }
 }

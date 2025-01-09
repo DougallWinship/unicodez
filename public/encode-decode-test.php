@@ -12,8 +12,8 @@ $seed = intval($_GET["seed"] ?? 1);
 <br><br><hr><br>
 <?php
 
-foreach (\Unicoder\Mappings::ALL_TYPES as $type) {
-    $unicoder = new \Unicoder\Unicoder();
+foreach (\Unicodez\Mappings::ALL_TYPES as $type) {
+    $unicoder = new \Unicodez\Unicodez();
     echo "Type : ".$type."<br>".PHP_EOL;
     $php = <<<PHP
 echo "Hello from $type!";

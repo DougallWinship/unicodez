@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-$types = \Unicoder\Mappings::ALL_TYPES;
+$types = \Unicodez\Mappings::ALL_TYPES;
 
 $seed = intval($_POST['seed'] ?? 1);
 
@@ -19,17 +19,17 @@ if ($type) {
         die("Unrecognized unicoder type : ".$type);
     }
     if (isset($_POST['do-encode'])) {
-        $unicoder = new \Unicoder\Unicoder();
+        $unicoder = new \Unicodez\Unicodez();
         $encoded = $unicoder->encode($unencoded, $type, $seed);
         $unencoded = '';
     }
     else if (isset($_POST['do-decode'])) {
-        $unicoder = new \Unicoder\Unicoder();
+        $unicoder = new \Unicodez\Unicodez();
         list($type, $seed, $unencoded) = $unicoder->decode($encoded);
         $encoded = '';
     }
     else if (isset($_POST['do-eval'])) {
-        $unicoder = new \Unicoder\Unicoder();
+        $unicoder = new \Unicodez\Unicodez();
         list($type, $seed, $evalUnencoded) = $unicoder->decode($encoded);
         if (str_starts_with($evalUnencoded,"<?php")) {
             $evalUnencoded = substr($evalUnencoded,6);
@@ -88,11 +88,11 @@ if ($type) {
 
     <br><br><br>
     <label>
-        <textarea name="encoded" rows="12" cols="80"  style="<?= $encoded ? 'background-color:#efe' : ''?>" readonly><?= $encoded ?></textarea>
+        <textarea name="encoded" rows="12" cols="80"  style="<?= $encoded ? 'background-color:#efe' : ''?>"><?= $encoded ?></textarea>
         <br>
     </label>
-    <button name="do-decode" value="1" <?= $encoded ? '' : 'disabled' ?>>Decode</button>
-    <button name="do-eval" value="1"  <?= $encoded ? '' : 'disabled' ?>>PHP Eval</button>
+    <button name="do-decode" value="1">Decode</button>
+    <button name="do-eval" value="1">PHP Eval</button>
 
     <?php if (isset($evalError) && isset($evalUnencodedLines)) {?>
         <br><br>
