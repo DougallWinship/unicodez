@@ -73,11 +73,11 @@ if ($type) {
         <br>
     </label>
     <div style="display: flex; flex-direction:  row"></div>
-    <label>
+    <label style="margin-right:6px">
         Seed : <input name="seed" type="number" value="<?= $seed ?>" min="1" step="1" style="width:100px" />
     </label>
-    <label>
-        Obfuscator :
+    <label style="margin-right:6px">
+        Unicodez set :
         <select name="type">
             <?php foreach ($types as $optionType) {?>
                 <option value="<?= $optionType ?>" <?= $optionType===$type ? 'selected' : '' ?>><?= $optionType ?></option>
