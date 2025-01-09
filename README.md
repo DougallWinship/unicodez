@@ -23,30 +23,30 @@ php -S localhost:8000
 
 and look at:
 ```
-Encoder/Decoder (/unicoder-decoder.php) : how to translate to/from the unicoder text
+Encoder/Decoder (/encoder-decoder.php) : how to translate to/from the unicodez text
 Encode/Decode Test (/encode-decode-test.php) : basic html test of each set
-Autoload Test (/autoload-test.php) : show unicoder auto-loading in practice!
+Autoload Test (/autoload-test.php) : show unicodez auto-loading in practice!
 ```
 
 ## PHP
 
 ### Basic encoding/decoding
 ```php
-$unicoder = new Unicoder();
-$encoded = $unicoder->encode("This is some text", Mappings::TEXT_RUNIC, 123);
-$decoded = $unicoder->decode($encoded)
+$unicodez = new \Unicodez\Unicodez();
+$encoded = $unicodez->encode("This is some text", \Unicodez\Mappings::TEXT_RUNIC, 123);
+$decoded = $unicodez->decode($encoded)
 ```
 
 ### Include/Autoloader
 While basic text encoding/decoding is fine on its own for any arbitrary text, since this is implemented in PHP an
 include method and autoloader are also supplied for your convenience:
 ```php
-$unicoder = new \Unicoder\Unicoder();
-$unicode->include(dirname(__DIR__) . '/src/Runic/RunicTest.php')
+$unicodez = new \Unicodez\Unicodez();
+$unicodez->include(dirname(__DIR__) . '/src/Runic/RunicTest.php')
 ```
 ```php
-$unicoder = new \Unicoder\Unicoder();
-$unicoder->addAutoloader(dirname(__DIR__) . '/src');
+$unicodez = new \Unicodez\Unicodez();
+$unicodez->addAutoloader(dirname(__DIR__) . '/src');
 $runicTest = new \Runic\RunicTest();
 ```
 This finds the file, then decodes and evals it.
