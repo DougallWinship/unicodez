@@ -1,11 +1,16 @@
 # Unicodez
-Encode/decode text to/from various Unicode character sets (ranges) using a seed ... purely for shits & giggles!
+Encode/decode text to/from various Unicode character sets (ranges) using a seed for some reason 🤷!
 
 For example "this is a test" encoded as Runic with a seed of 1 gives:
 ᚡ﻿ᛚᛁᛖᚰᛡᛑᚮᛅᛈᛉᛡᛑᚮᛅᛈᛉᛊᛔᛈᛉᛚᛁᛟᛩᚮᛅᛚᛁ
 
+...or "Why am I looking at this project? I probably need to rethink my priorities." encoded with Flags and a seed of 13 results in:  
+🇧🇩﻿🇹🇴🇧🇫🇱🇾🇲🇾🇰🇮🇰🇬🇸🇮🇸🇧🇬🇬🇵🇪🇩🇪🇩🇪🇸🇮🇸🇧🇲🇼🇾🇪🇸🇮🇸🇧🇦🇷🇬🇶🇬🇷🇧🇧🇬🇷🇧🇧🇸🇳🇮🇲🇦🇲🇨🇾🇧🇷🇯🇪🇹🇳🇵🇾🇸🇮🇸🇧🇬🇬🇵🇪🇩🇿🇲🇼🇸🇮🇸🇧🇩🇿🇲🇼🇱🇾🇲🇾🇦🇲🇨🇾🇨🇿🇸🇰🇸🇮🇸🇧🇻🇪🇸🇳🇫🇷🇮🇲🇬🇷🇧🇧🇮🇶🇬🇭🇧🇼🇲🇨🇬🇧🇲🇻🇩🇿🇲🇼🇸🇻🇩🇯🇸🇮🇸🇧🇲🇼🇾🇪🇸🇮🇸🇧🇻🇪🇸🇳🇫🇷🇮🇲🇬🇷🇧🇧🇪🇷🇬🇩🇬🇬🇵🇪🇪🇷🇬🇩🇦🇷🇬🇶🇰🇮🇰🇬🇸🇮🇸🇧🇧🇷🇯🇪🇧🇼🇲🇨🇧🇼🇲🇨🇰🇿🇧🇿🇸🇮🇸🇧🇩🇿🇲🇼🇬🇷🇧🇧🇸🇮🇸🇧🇫🇷🇮🇲🇧🇼🇲🇨🇩🇿🇲🇼🇱🇾🇲🇾🇦🇲🇨🇾🇧🇷🇯🇪🇸🇳🇮🇲🇸🇮🇸🇧🇩🇪🇩🇪🇰🇮🇰🇬🇸🇮🇸🇧🇻🇪🇸🇳🇫🇷🇮🇲🇦🇲🇨🇾🇬🇷🇧🇧🇫🇷🇮🇲🇦🇲🇨🇾🇩🇿🇲🇼🇦🇲🇨🇾🇧🇼🇲🇨🇨🇿🇸🇰🇸🇷🇵🇰
+
 A pseudo-shebang indicates both the encoding range (set) and the seed used, a zero-width no-break space (U+FEFF) is used 
-to delimit the shebang.
+to delimit the pseudo-shebang.
+> This pseudo-shebang "feature" ensures that using this library is essentially useless for obfuscation (since
+> the seed is automatically decoded), this perfectly aligns with the fundamental pointlessness of the project. 
 
 > Note that currently only 8-bit encoding is supported, which is sufficient to cover ASCII, but not much more!
 
@@ -15,7 +20,7 @@ The project uses composer to generate a PSR-4 autoloader, so to get started
 composer install
 ```
 
-To play with the dumbness either mount /public on a local webserver or use the PHP webserver:
+To play with the dumbness, either mount /public on a local webserver, or use the PHP webserver:
 ```
 cd public
 php -S localhost:8000
@@ -49,4 +54,11 @@ $unicodez = new \Unicodez\Unicodez();
 $unicodez->addAutoloader(dirname(__DIR__) . '/src');
 $runicTest = new \Runic\RunicTest();
 ```
-This finds the file, then decodes and evals it.
+This finds the file, then decodes and ~~evils~~/evals it.
+
+> Since this attempts to add a reasonably sensible autoloader at the start of the PHP autoloader chain 
+> (using the prepend attribute), the hope is that you may be able to annoy/confound your colleagues/enemies by 
+> providing php implementations like [the Runic autoload test script](./src/Runic/RunicTest.php).
+
+### Automated Tests
+There are currently none because this is essentially pointless.
