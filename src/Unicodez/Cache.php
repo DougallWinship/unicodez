@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class Cache {
-
+class Cache
+{
     private string $cacheDir;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->cacheDir = $this->getUnicoderDirectory();
     }
 
-    function getUnicoderDirectory(): string
+    private function getUnicoderDirectory(): string
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $baseDir = getenv('LOCALAPPDATA') . DIRECTORY_SEPARATOR . 'Unicoder';
+            $baseDir = getenv('LOCALAPPDATA') . DIRECTORY_SEPARATOR . 'Unicodez';
         } else {
-            $baseDir = getenv('HOME') . DIRECTORY_SEPARATOR . '.unicoder';
+            $baseDir = getenv('HOME') . DIRECTORY_SEPARATOR . '.unicodez';
         }
 
         if (!file_exists($baseDir)) {
@@ -27,18 +28,18 @@ class Cache {
         return $baseDir;
     }
 
-    function has($type, $seed): bool
+    public function has($type, $seed): bool
     {
         return file_exists($this->getFile($type, $seed));
     }
 
-    function store($type, $seed, $mapping): false|int
+    public function store($type, $seed, $mapping): false|int
     {
         $filePath = $this->getFile($type, $seed);
         return file_put_contents($filePath, serialize($mapping));
     }
 
-    function load($type, $seed): ?array
+    public function load($type, $seed): ?array
     {
         $filePath = $this->getFile($type, $seed);
         return file_exists($filePath)
@@ -69,8 +70,9 @@ class Cache {
         }
     }
 
-    function getFile($type, $seed): string
+    public function getFile($type, $seed): string
     {
-        return $this->cacheDir . DIRECTORY_SEPARATOR . str_replace(" ","-",strtolower($type)) . "-" . $seed . ".php";
+        return $this->cacheDir . DIRECTORY_SEPARATOR .
+            str_replace(" ", "-", strtolower($type)) . "-" . $seed . ".php";
     }
 }

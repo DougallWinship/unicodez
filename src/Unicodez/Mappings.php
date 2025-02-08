@@ -4,31 +4,31 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class Mappings {
+class Mappings
+{
+    public const int DEFAULT_ENCODE_BITS = 8;
 
-    const int DEFAULT_ENCODE_BITS = 8;
+    public const string TYPE_FLAGS = "Flags";
+    public const string TYPE_OGHAM = "Ogham";
+    public const string TYPE_RUNIC = "Runic";
+    public const string TYPE_BRAILLE = "Braille";
+    public const string TYPE_ARROWS = "Arrows";
+    public const string TYPE_MATHS_OPERATORS = "Maths Operators";
+    public const string TYPE_BOX_DRAWING = "Box Drawing";
+    public const string TYPE_GEOMETRIC_SHAPES = "Geometric Shapes";
+    public const string TYPE_PLANETS = "Planets";
+    public const string TYPE_ZODIAC = "Zodiac";
+    public const string TYPE_CHESS = "Chess Pieces";
+    public const string TYPE_CARD_SUITES = "Card Suites";
+    public const string TYPE_MUSIC_NOTES = "Music Notes";
+    public const string TYPE_DICE = "Dice";
+    public const string TYPE_CUNIEFORM = "Cunieform";
+    public const string TYPE_HEIROGLYPHS = "Heiroglyphs";
+    public const string TYPE_EMOTICONS = "Emoticons";
+    public const string TYPE_TRANSPORT = "Transport";
+    public const string TYPE_ALCHEMICAL = "Alchemical";
 
-    const string TYPE_FLAGS = "Flags";
-    const string TYPE_OGHAM = "Ogham";
-    const string TYPE_RUNIC = "Runic";
-    const string TYPE_BRAILLE = "Braille";
-    const string TYPE_ARROWS = "Arrows";
-    const string TYPE_MATHS_OPERATORS = "Maths Operators";
-    const string TYPE_BOX_DRAWING = "Box Drawing";
-    const string TYPE_GEOMETRIC_SHAPES = "Geometric Shapes";
-    const string TYPE_PLANETS = "Planets";
-    const string TYPE_ZODIAC = "Zodiac";
-    const string TYPE_CHESS = "Chess Pieces";
-    const string TYPE_CARD_SUITES = "Card Suites";
-    const string TYPE_MUSIC_NOTES = "Music Notes";
-    const string TYPE_DICE = "Dice";
-    const string TYPE_CUNIEFORM = "Cunieform";
-    const string TYPE_HEIROGLYPHS = "Heiroglyphs";
-    const string TYPE_EMOTICONS = "Emoticons";
-    const string TYPE_TRANSPORT = "Transport";
-    const string TYPE_ALCHEMICAL = "Alchemical";
-
-    const array ALL_TYPES =[
+    public const array ALL_TYPES = [
         self::TYPE_FLAGS,
         self::TYPE_OGHAM,
         self::TYPE_RUNIC,
@@ -63,9 +63,10 @@ class Mappings {
 
     private array $flippedMappings;
 
-    public function __construct(string $type, int $seed) {
+    public function __construct(string $type, int $seed)
+    {
         if (!in_array($type, self::ALL_TYPES)) {
-            throw new \Exception("Unsupported type : ".$type);
+            throw new \Exception("Unsupported type : " . $type);
         }
         $this->type = $type;
         $this->seed = $seed;
@@ -75,8 +76,7 @@ class Mappings {
         if (!$this->cache->has($type, $seed)) {
             if ($type === self::TYPE_FLAGS) {
                 $unicodeSet = CountryCodes::getUnicodeSet();
-            }
-            else {
+            } else {
                 $range = self::getUnicodeRange($type);
                 $unicodeSet = self::generateUnicodeSet($range[0], $range[1]);
             }
@@ -87,16 +87,26 @@ class Mappings {
             }
             $this->mappings = $this->generateMappings($unicodeSet);
             $this->cache->store($type, $seed, $this->mappings);
-        }
-        else {
+        } else {
             $this->mappings = $this->cache->load($type, $seed);
         }
-        $this->flippedMappings =array_flip($this->mappings);
+        $this->flippedMappings = array_flip($this->mappings);
     }
 
-    public function getType(): string { return $this->type; }
-    public function getSeed(): int { return $this->seed; }
-    public function getBits(): int { return $this->bits; }
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function getSeed(): int
+    {
+        return $this->seed;
+    }
+
+    public function getBits(): int
+    {
+        return $this->bits;
+    }
 
     /**
      * Encoding logic
@@ -118,7 +128,8 @@ class Mappings {
      * @param string $encodedStr
      * @return string
      */
-    public function decode(string $encodedStr): string {
+    public function decode(string $encodedStr): string
+    {
         $decoded = '';
         $chunks = preg_split('//u', $encodedStr, -1, PREG_SPLIT_NO_EMPTY);
         $buffer = '';
@@ -163,19 +174,24 @@ class Mappings {
         return $mappings;
     }
 
-    private function generateCombinationsRecursive(array $set, string $prefix, int $comboLength, array &$combinations): void {
+    private function generateCombinationsRecursive(
+        array $set,
+        string $prefix,
+        int $comboLength,
+        array &$combinations
+    ): void {
         if ($comboLength == 0) {
             $combinations[] = $prefix;
             return;
         }
-
         foreach ($set as $char) {
             $this->generateCombinationsRecursive($set, $prefix . $char, $comboLength - 1, $combinations);
         }
     }
 
-    public static function getUnicodeRange($type): ?array {
-        return match($type) {
+    public static function getUnicodeRange($type): ?array
+    {
+        return match ($type) {
             self::TYPE_OGHAM => [0x1680, 0x169A],
             self::TYPE_RUNIC => [0x16A0, 0x16EA],
             self::TYPE_BRAILLE => [0x2800, 0x28FF],
@@ -201,11 +217,11 @@ class Mappings {
     public static function sniffTypeSet(string $shebang): string
     {
         $countryCodes = CountryCodes::getUnicodeSet();
-        if (in_array(mb_substr($shebang,0,2), $countryCodes)) {
+        if (in_array(mb_substr($shebang, 0, 2), $countryCodes)) {
             return self::TYPE_FLAGS;
         }
-        $charCode = mb_ord(mb_substr($shebang,0,1), 'UTF-8');
-        for ($i=0; $i<count(self::ALL_TYPES); $i++) {
+        $charCode = mb_ord(mb_substr($shebang, 0, 1), 'UTF-8');
+        for ($i = 0; $i < count(self::ALL_TYPES); $i++) {
             $checkType = self::ALL_TYPES[$i];
             list($start, $end) = self::getUnicodeRange($checkType);
             if ($charCode >= $start && $charCode <= $end) {

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class Unicodez {
+class Unicodez
+{
+    public const int DEFAULT_SEED = 1;
 
-    const int DEFAULT_SEED = 1;
+    public const string SHEBANG_DELIMITER = "\u{FEFF}";
 
-    const string SHEBANG_DELIMITER = "\u{FEFF}";
-
-    const string AUTOLOADER_EXTENSION = "php";
+    public const string AUTOLOADER_EXTENSION = "php";
 
     /**
      * @param string $input
@@ -24,7 +24,7 @@ class Unicodez {
         $shebang = self::generateShebang($type, $seed);
         $mapping = new Mappings($type, $seed);
         $encoded = $mapping->encode($input);
-        return $shebang.$encoded;
+        return $shebang . $encoded;
     }
 
     /**
@@ -32,7 +32,8 @@ class Unicodez {
      * @return array
      * @throws \Exception
      */
-    public function decode(string $encodedStr): array {
+    public function decode(string $encodedStr): array
+    {
         list($type, $seed, $content) = self::readShebang($encodedStr);
         $mapping = new Mappings($type, $seed);
         return [$type, $seed, $mapping->decode($content)];
@@ -53,13 +54,12 @@ class Unicodez {
         }
 
         $shebang = mb_substr($input, 0, $position, 'UTF-8');
-        $content = mb_substr($input, $position+1, null, 'UTF-8');
+        $content = mb_substr($input, $position + 1, null, 'UTF-8');
         $type = Mappings::sniffTypeSet($shebang);
-        if ($type===Mappings::TYPE_FLAGS) {
+        if ($type === Mappings::TYPE_FLAGS) {
             $set = CountryCodes::getUnicodeSet();
             $chunkSize = 2;
-        }
-        else {
+        } else {
             $range = Mappings::getUnicodeRange($type);
             $set = Mappings::generateUnicodeSet($range[0], $range[1]);
             $chunkSize = 1;
@@ -67,8 +67,8 @@ class Unicodez {
         $base = count($set);
         $mapCharsToIndices = array_flip($set);
         $seed = 0;
-        $length = mb_strlen($shebang,'UTF-8');
-        for ($idx=0; $idx<$length; $idx+=$chunkSize) {
+        $length = mb_strlen($shebang, 'UTF-8');
+        for ($idx = 0; $idx < $length; $idx += $chunkSize) {
             $char = mb_substr($shebang, $idx, $chunkSize, 'UTF-8');
             if (!isset($mapCharsToIndices[$char])) {
                 throw new \Exception("Invalid character in shebang '{$char}'");
@@ -80,10 +80,9 @@ class Unicodez {
 
     private static function generateShebang(string $type, int $seed): string
     {
-        if ($type===Mappings::TYPE_FLAGS) {
+        if ($type === Mappings::TYPE_FLAGS) {
             $set = CountryCodes::getUnicodeSet();
-        }
-        else {
+        } else {
             list($start, $end) = Mappings::getUnicodeRange($type);
             $set = Mappings::generateUnicodeSet($start, $end);
         }
@@ -97,10 +96,8 @@ class Unicodez {
             $seed = intdiv($seed, $base);
         } while ($seed > 0);
 
-        return $shebang.self::SHEBANG_DELIMITER;
+        return $shebang . self::SHEBANG_DELIMITER;
     }
-
-
 
     /**
      * @param string $root
@@ -108,7 +105,7 @@ class Unicodez {
      * @return bool
      * @throws \Exception
      */
-    public function addAutoloader(string $root=__DIR__, string $prefix = ''): bool
+    public function addAutoloader(string $root = __DIR__, string $prefix = ''): bool
     {
         return spl_autoload_register(function ($className) use ($root, $prefix) {
             if ($prefix && str_starts_with($className, $prefix)) {
@@ -116,7 +113,8 @@ class Unicodez {
             }
             $relativeClass = $prefix ? substr($className, strlen($prefix)) : $className;
             $relativeClass = ltrim($relativeClass, '\\');
-            $filePath = $root.'/'.str_replace('\\', '/', $relativeClass).'.'.self::AUTOLOADER_EXTENSION;
+            $filePath = $root . '/'
+                . str_replace('\\', '/', $relativeClass) . '.' . self::AUTOLOADER_EXTENSION;
             $this->include($filePath);
         }, true, true);
     }
@@ -132,11 +130,11 @@ class Unicodez {
             return false;
         }
         $contents = file_get_contents($filePath);
-        $detected =  mb_detect_encoding($contents,"UTF-8, ISO-8859-1", true);
+        $detected =  mb_detect_encoding($contents, "UTF-8, ISO-8859-1", true);
         if ($detected != "UTF-8") {
             $contents = mb_convert_encoding($contents, "UTF-8", $detected);
         }
-        if (mb_strpos($contents, self::SHEBANG_DELIMITER)===false) {
+        if (mb_strpos($contents, self::SHEBANG_DELIMITER) === false) {
             return false;
         }
         list ($type, $seed, $content) = self::readShebang($contents);

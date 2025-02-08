@@ -1,5 +1,5 @@
 # Unicodez
-Encode/decode text to/from various Unicode character sets (ranges) using a seed for some reason 🤷!
+Encode/decode text to/from various Unicode character sets (ranges) using a seed for some reason 🤷
 
 For example "this is a test" encoded as Runic with a seed of 1 gives:
 ᚡ﻿ᛚᛁᛖᚰᛡᛑᚮᛅᛈᛉᛡᛑᚮᛅᛈᛉᛊᛔᛈᛉᛚᛁᛟᛩᚮᛅᛚᛁ
@@ -28,8 +28,8 @@ php -S localhost:8000
 
 and look at:
 ```
-Encoder/Decoder (/encoder-decoder.php) : how to translate to/from the unicodez text
-Encode/Decode Test (/encode-decode-test.php) : basic html test of each set
+Encoder/Decoder (/encoder-decoder.php) : translate to/from the unicodez text
+Encode/Decode Test (/encode-decode-test.php) : basic HTML test of each set
 Autoload Test (/autoload-test.php) : show unicodez auto-loading in practice!
 ```
 
@@ -56,9 +56,14 @@ $runicTest = new \Runic\RunicTest();
 ```
 This finds the file, then decodes and ~~evils~~/evals it.
 
-> Since this attempts to add a reasonably sensible autoloader at the start of the PHP autoloader chain 
+> This attempts to add a reasonably sensible autoloader at the start of the PHP autoloader chain 
 > (using the prepend attribute), the hope is that you may be able to annoy/confound your colleagues/enemies by 
 > providing php implementations like [the Runic autoload test script](./src/Runic/RunicTest.php).
 
-### Automated Tests
-There are currently none because this is essentially pointless.
+## PSR-12
+The code conforms to the [PSR-12](https://www.php-fig.org/psr/psr-12/) standard.
+This is the tool that is used to check : https://github.com/PHPCSStandards/PHP_CodeSniffer/
+Once installed and available globally (presumably via PATH settings), something like this can be used from the root dir:
+```
+phpcs --standard=PSR12 ./src/Unicodez/
+```

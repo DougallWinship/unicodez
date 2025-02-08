@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class CountryCodes {
-
+class CountryCodes
+{
     private static $codes = [
         "AF" => "Afghanistan",
         "AZ" => "Azerbaijan",
@@ -216,16 +216,13 @@ class CountryCodes {
         "SX" => "Sint Maarten"
     ];
 
-    const string FLAG_CHECKED = "🏁";
-    const string FLAG_CROSSED = "🎌";
-
-    const string FLAG_TRIANGLE = "🚩";
-
-    const string FLAG_WHITE = "🏳️";
-    const string FLAG_RAINBOW = "🌈 ";
-    const string FLAG_BLACK = "🏴";
-
-    const string FLAG_PIRATE = "‍☠️";
+    public const string FLAG_CHECKED = "🏁";
+    public const string FLAG_CROSSED = "🎌";
+    public const string FLAG_TRIANGLE = "🚩";
+    public const string FLAG_WHITE = "🏳️";
+    public const string FLAG_RAINBOW = "🌈 ";
+    public const string FLAG_BLACK = "🏴";
+    public const string FLAG_PIRATE = "‍☠️";
 
     private static ?array $sortedCodes = null;
 
@@ -253,7 +250,6 @@ class CountryCodes {
         if (!self::$sortedCountries) {
             self::$sortedCountries = array_flip(self::$codes);
             asort(self::$sortedCountries);
-
         }
         return self::$sortedCountries;
     }
@@ -281,7 +277,7 @@ class CountryCodes {
     public static function getUnicodeSet(): array
     {
         $codesByCountry = self::getCodesByCountry();
-        if (self::$set===null) {
+        if (self::$set === null) {
             $set = [];
             foreach ($codesByCountry as $code) {
                 $set[] = self::isoToUnicodeFlag($code);
