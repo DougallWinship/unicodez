@@ -72,7 +72,6 @@ class Mappings
         $this->seed = $seed;
         $this->bits = self::DEFAULT_ENCODE_BITS;
         $this->cache = new Cache();
-
         if (!$this->cache->has($type, $seed)) {
             if ($type === self::TYPE_FLAGS) {
                 $unicodeSet = CountryCodes::getUnicodeSet();
@@ -229,6 +228,19 @@ class Mappings
             }
         }
         throw new \Exception("Failed to determine type!");
+    }
+
+    public static function validateType(string $contents, $type): bool
+    {
+        list($minCode, $maxCode) = Mappings::getUnicodeRange($type);
+        for ($i = 0; $i < mb_strlen($contents); $i++) {
+            $char = mb_substr($contents, $i, 1);
+            $charCode = mb_ord($char, 'UTF-8');
+            if ($charCode < $minCode || $charCode > $maxCode) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function generateUnicodeSet(int $from, int $to): array

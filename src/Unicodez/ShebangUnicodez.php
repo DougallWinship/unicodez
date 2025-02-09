@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class Unicodez
+class ShebangUnicodez
 {
-    public const int DEFAULT_SEED = 1;
-
     public const string SHEBANG_DELIMITER = "\u{FEFF}";
 
     public const string AUTOLOADER_EXTENSION = "php";
@@ -78,6 +76,11 @@ class Unicodez
         return [$type, $seed, $content];
     }
 
+    /**
+     * @param string $type
+     * @param int $seed
+     * @return string
+     */
     private static function generateShebang(string $type, int $seed): string
     {
         if ($type === Mappings::TYPE_FLAGS) {
@@ -134,7 +137,20 @@ class Unicodez
         if ($detected != "UTF-8") {
             $contents = mb_convert_encoding($contents, "UTF-8", $detected);
         }
-        if (mb_strpos($contents, self::SHEBANG_DELIMITER) === false) {
+        $pos = mb_strpos($contents, self::SHEBANG_DELIMITER);
+        if ($pos === false) {
+            return false;
+        }
+        $firstChar = mb_substr($contents, 0, 1);
+        $type =  Mappings::sniffTypeSet($firstChar);
+        if (!$type) {
+            return false;
+        }
+        if (!Mappings::validateType($type, mb_substr($contents, $pos+1))) {
+            return false;
+        }
+        $contentsAfterShebang = substr($contents, $pos+1);
+        if (!Mappings::validateType($contentsAfterShebang, $type)) {
             return false;
         }
         list ($type, $seed, $content) = self::readShebang($contents);

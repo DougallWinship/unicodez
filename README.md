@@ -36,8 +36,9 @@ Autoload Test (/autoload-test.php) : show unicodez auto-loading in practice!
 ## PHP
 
 ### Basic encoding/decoding
+
 ```php
-$unicodez = new \Unicodez\Unicodez();
+$unicodez = new \Unicodez\ShebangUnicodez();
 $encoded = $unicodez->encode("This is some text", \Unicodez\Mappings::TEXT_RUNIC, 123);
 $decoded = $unicodez->decode($encoded)
 ```
@@ -45,12 +46,14 @@ $decoded = $unicodez->decode($encoded)
 ### Include/Autoloader
 While basic text encoding/decoding is fine on its own for any arbitrary text, since this is implemented in PHP an
 include method and autoloader are also supplied for your convenience:
+
 ```php
-$unicodez = new \Unicodez\Unicodez();
+$unicodez = new \Unicodez\ShebangUnicodez();
 $unicodez->include(dirname(__DIR__) . '/src/Runic/RunicTest.php')
 ```
+
 ```php
-$unicodez = new \Unicodez\Unicodez();
+$unicodez = new \Unicodez\ShebangUnicodez();
 $unicodez->addAutoloader(dirname(__DIR__) . '/src');
 $runicTest = new \Runic\RunicTest();
 ```

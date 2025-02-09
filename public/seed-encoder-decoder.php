@@ -19,18 +19,18 @@ if ($type) {
         die("Unrecognized unicoder type : ".$type);
     }
     if (isset($_POST['do-encode'])) {
-        $unicoder = new \Unicodez\Unicodez();
+        $unicoder = new \Unicodez\SeedUnicodez();
         $encoded = $unicoder->encode($unencoded, $type, $seed);
         $unencoded = '';
     }
     else if (isset($_POST['do-decode'])) {
-        $unicoder = new \Unicodez\Unicodez();
-        list($type, $seed, $unencoded) = $unicoder->decode($encoded);
+        $unicoder = new \Unicodez\SeedUnicodez();
+        $unencoded = $unicoder->decode($encoded, $type, $seed);
         $encoded = '';
     }
     else if (isset($_POST['do-eval'])) {
-        $unicoder = new \Unicodez\Unicodez();
-        list($type, $seed, $evalUnencoded) = $unicoder->decode($encoded);
+        $unicoder = new \Unicodez\SeedUnicodez();
+        list($type, $seed, $evalUnencoded) = $unicoder->decode($encoded, $type, $seed);
         if (str_starts_with($evalUnencoded,"<?php")) {
             $evalUnencoded = substr($evalUnencoded,6);
         }
@@ -58,31 +58,35 @@ if ($type) {
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Unicoder : Encode/Decode</title>
+    <title>Unicoder : Seed Encode/Decode</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-<h1 style="margin-bottom:0">Unicoder : Shebang Encode/Decode</h1>
+<h1 style="margin-bottom:0">Unicoder : Seed Encode/Decode</h1>
 <?php if (isset($unicoder)) /* {?>
 <div style="position:relative;top:-10px;">Num bits = <?= $unicoder->getBits(); ?></div>
 <?php }  */ ?>
 <form action="" method="post">
+    <div>
+        <label style="margin-right:6px">
+            Seed : <input name="seed" type="number" value="<?= $seed ?>" min="1" step="1" style="width:100px" />
+        </label>
+        <label style="margin-right:6px">
+            Unicodez set :
+            <select name="type">
+                <?php foreach ($types as $optionType) {?>
+                    <option value="<?= $optionType ?>" <?= $optionType===$type ? 'selected' : '' ?>><?= $optionType ?></option>
+                <?php } ?>
+            </select>
+        </label>
+    </div>
+
+    <br><hr><br>
+
     <label>
         <textarea name="unencoded" rows="12" cols="80" style="<?= $unencoded ? 'background-color:#efe' : ''?>"><?= $unencoded ?></textarea>
         <br>
-    </label>
-    <div style="display: flex; flex-direction:  row"></div>
-    <label style="margin-right:6px">
-        Seed : <input name="seed" type="number" value="<?= $seed ?>" min="1" step="1" style="width:100px" />
-    </label>
-    <label style="margin-right:6px">
-        Unicodez set :
-        <select name="type">
-            <?php foreach ($types as $optionType) {?>
-                <option value="<?= $optionType ?>" <?= $optionType===$type ? 'selected' : '' ?>><?= $optionType ?></option>
-            <?php } ?>
-        </select>
     </label>
     <button  name="do-encode" value="1">Encode</button>
 

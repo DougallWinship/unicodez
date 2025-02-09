@@ -13,7 +13,7 @@ $seed = intval($_GET["seed"] ?? 1);
 <?php
 
 foreach (\Unicodez\Mappings::ALL_TYPES as $type) {
-    $unicoder = new \Unicodez\Unicodez();
+    $unicoder = new \Unicodez\ShebangUnicodez();
     echo "Type : ".$type."<br>".PHP_EOL;
     $php = <<<PHP
 echo "Hello from $type!";
