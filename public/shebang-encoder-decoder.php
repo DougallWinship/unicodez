@@ -25,33 +25,17 @@ if ($type) {
     }
     else if (isset($_POST['do-decode'])) {
         $unicoder = new \Unicodez\ShebangUnicodez();
-        list($type, $seed, $unencoded) = $unicoder->decode($encoded);
+        $unencoded =$unicoder->decode($encoded);
+        $type = $unencoded->type;
+        $seed = $unencoded->seed;
         $encoded = '';
     }
     else if (isset($_POST['do-eval'])) {
         $unicoder = new \Unicodez\ShebangUnicodez();
-        list($type, $seed, $evalUnencoded) = $unicoder->decode($encoded);
-        if (str_starts_with($evalUnencoded,"<?php")) {
-            $evalUnencoded = substr($evalUnencoded,6);
-        }
-        if (str_ends_with($evalUnencoded,"?>")) {
-            $evalUnencoded = substr($evalUnencoded,0,-3);
-        }
-        $evalUnencodedLines = preg_split("/\r\n|\n|\r/", $evalUnencoded);
-        try {
-            ob_start();
-            eval($evalUnencoded);
-            $output = ob_get_clean();
-        }
-        catch (\Throwable $e) {
-            $unencoded = $evalUnencoded;
-            $encoded = '';
-            $evalError = $e;
-        }
-        finally {
-            ob_end_clean();
-        }
-
+        $decoded =  $unicoder->decode($encoded);
+        $type = $decoded->type;
+        $seed = $decoded->seed;
+        $evalOutput = $decoded->eval();
     }
 }
 ?>
@@ -94,16 +78,18 @@ if ($type) {
     <button name="do-decode" value="1">Decode</button>
     <button name="do-eval" value="1">PHP Eval</button>
 
-    <?php if (isset($evalError) && isset($evalUnencodedLines)) {?>
-        <br><br>
-        <div>PHP Error:</div>
-        <?php for($line=1; $line<=count($evalUnencodedLines); $line++) { ?>
-            <pre style="margin:0"><?= $line ?> : <?= $evalUnencodedLines[$line-1]; ?> <?php if ($evalError->getLine()===$line){?><span style="color:red"> &lt;= <?= $evalError->getMessage()?><?php } ?></pre>
-        <?php } ?>
-    <?php } else if ($output) { ?>
+    <?php if (isset($evalOutput)) { ?>
         <br><br>
         <div>PHP Output:</div>
-        <div style="padding:6px;border:1px solid #aaa;display:inline-block;margin-top:6px"><?= $output ?></div>
+        <div style="padding:6px;border:1px solid #aaa;display:inline-block;margin-top:6px"><?= $evalOutput ?></div>
+    <?php } else if (isset($decoded) && $lastError=$decoded->getLastError()) { ?>
+    <br><br>
+    <div>PHP Error:</div>
+    <?php
+        $lastDecodedLines = $decoded->getLastDecodedLines();
+        for ($i=0; $i<count($lastDecodedLines); $i++) {?>
+            <pre style="margin:0"><?= ($i+1) ?> : <?= $lastDecodedLines[$i]; ?> <?php if ($lastError->getLine()===($i+1)){?><span style="color:red"> &lt;= <?= $lastError->getMessage()?><?php } ?></pre>
+        <?php } ?>
     <?php } ?>
 </form>
 </body>

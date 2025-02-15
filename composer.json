@@ -1,8 +1,14 @@
 {
-    "autoload": {
-        "psr-4": {"Unicodez\\": "src/Unicodez/"}
-    },
-    "require": {
-      "ext-mbstring": "*"
-    }
+  "name": "dougallwinship/unicodez",
+  "version": "0.1",
+  "description": "unicodez library",
+  "type": "library",
+  "license": "Unlicense",
+  "autoload": {
+      "psr-4": {"Unicodez\\": "src/Unicodez/"}
+  },
+  "require": {
+    "ext-mbstring": "*",
+    "wp-cli/php-cli-tools": "^0.12.1"
+  }
 }

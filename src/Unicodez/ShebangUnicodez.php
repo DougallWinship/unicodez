@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
-class ShebangUnicodez
+/**
+ * unicodez using a pseudo-shebang
+ */
+class ShebangUnicodez extends Unicodez
 {
     public const string SHEBANG_DELIMITER = "\u{FEFF}";
-
-    public const string AUTOLOADER_EXTENSION = "php";
 
     /**
      * @param string $input
@@ -27,22 +28,22 @@ class ShebangUnicodez
 
     /**
      * @param string $encodedStr
-     * @return array
+     * @return Decoded
      * @throws \Exception
      */
-    public function decode(string $encodedStr): array
+    public function decode(string $encodedStr): Decoded
     {
         list($type, $seed, $content) = self::readShebang($encodedStr);
         $mapping = new Mappings($type, $seed);
-        return [$type, $seed, $mapping->decode($content)];
+        return $mapping->decode($content);
     }
 
     /**
      * @param string $input
-     * @return array
+     * @return array|null
      * @throws \Exception
      */
-    private static function readShebang(string $input): array
+    public static function readShebang(string $input): ?array
     {
         // Find the position of the delimiter
         $position = mb_strpos($input, self::SHEBANG_DELIMITER, 0, 'UTF-8');
@@ -54,11 +55,16 @@ class ShebangUnicodez
         $shebang = mb_substr($input, 0, $position, 'UTF-8');
         $content = mb_substr($input, $position + 1, null, 'UTF-8');
         $type = Mappings::sniffTypeSet($shebang);
-        if ($type === Mappings::TYPE_FLAGS) {
+        if (!$type) {
+            return null;
+        } elseif ($type === Mappings::TYPE_FLAGS) {
             $set = CountryCodes::getUnicodeSet();
             $chunkSize = 2;
         } else {
             $range = Mappings::getUnicodeRange($type);
+            if (!$range) {
+                throw new \Exception('Shebang Delimiter not found in input.');
+            }
             $set = Mappings::generateUnicodeSet($range[0], $range[1]);
             $chunkSize = 1;
         }
@@ -110,16 +116,10 @@ class ShebangUnicodez
      */
     public function addAutoloader(string $root = __DIR__, string $prefix = ''): bool
     {
-        return spl_autoload_register(function ($className) use ($root, $prefix) {
-            if ($prefix && str_starts_with($className, $prefix)) {
-                return;
-            }
-            $relativeClass = $prefix ? substr($className, strlen($prefix)) : $className;
-            $relativeClass = ltrim($relativeClass, '\\');
-            $filePath = $root . '/'
-                . str_replace('\\', '/', $relativeClass) . '.' . self::AUTOLOADER_EXTENSION;
+        $callback = function ($filePath) {
             $this->include($filePath);
-        }, true, true);
+        };
+        return parent::registerAutoloader($callback, null, null, $root, $prefix);
     }
 
     /**
@@ -129,13 +129,9 @@ class ShebangUnicodez
      */
     public function include(string $filePath): bool
     {
-        if (!file_exists($filePath)) {
+        $contents = $this->readUTF8File($filePath);
+        if (!$contents) {
             return false;
-        }
-        $contents = file_get_contents($filePath);
-        $detected =  mb_detect_encoding($contents, "UTF-8, ISO-8859-1", true);
-        if ($detected != "UTF-8") {
-            $contents = mb_convert_encoding($contents, "UTF-8", $detected);
         }
         $pos = mb_strpos($contents, self::SHEBANG_DELIMITER);
         if ($pos === false) {
@@ -146,11 +142,11 @@ class ShebangUnicodez
         if (!$type) {
             return false;
         }
-        if (!Mappings::validateType($type, mb_substr($contents, $pos+1))) {
+        if (!Mappings::validateType($type, mb_substr($contents, $pos + 1))) {
             return false;
         }
-        $contentsAfterShebang = substr($contents, $pos+1);
-        if (!Mappings::validateType($contentsAfterShebang, $type)) {
+        $contentsAfterShebang = mb_substr($contents, $pos + 1);
+        if (!Mappings::validateType($type, $contentsAfterShebang)) {
             return false;
         }
         list ($type, $seed, $content) = self::readShebang($contents);
@@ -158,5 +154,15 @@ class ShebangUnicodez
         $decoded = $mapping->decode($content);
         eval($decoded);
         return true;
+    }
+
+    /**
+     * @param string $contents
+     * @return bool
+     */
+    public static function hasShebang(string $contents): bool
+    {
+        $pos = mb_strpos($contents, self::SHEBANG_DELIMITER);
+        return $pos !== false;
     }
 }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Unicodez;
 
+/**
+ * ISO country codes & unicode flag generation
+ */
 class CountryCodes
 {
-    private static $codes = [
+    private static array $codes = [
         "AF" => "Afghanistan",
         "AZ" => "Azerbaijan",
         "BD" => "Bangladesh",

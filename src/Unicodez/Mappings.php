@@ -63,6 +63,11 @@ class Mappings
 
     private array $flippedMappings;
 
+    /**
+     * @param string $type
+     * @param int $seed
+     * @throws \Exception
+     */
     public function __construct(string $type, int $seed)
     {
         if (!in_array($type, self::ALL_TYPES)) {
@@ -92,42 +97,55 @@ class Mappings
         $this->flippedMappings = array_flip($this->mappings);
     }
 
+    /**
+     * @return string
+     */
     public function getType(): string
     {
         return $this->type;
     }
 
+    /**
+     * @return int
+     */
     public function getSeed(): int
     {
         return $this->seed;
     }
 
+    /**
+     * @return int
+     */
     public function getBits(): int
     {
         return $this->bits;
     }
 
     /**
-     * Encoding logic
+     * encoding logic
      * @param $input
      * @return string
+     * @throws \Exception
      */
     public function encode($input): string
     {
         $encoded = '';
         foreach (mb_str_split($input) as $char) {
             $binary = sprintf('%0' . $this->bits . 'b', mb_ord($char));  // Handle 16-bit binary values
+            if (!array_key_exists($binary, $this->mappings)) {
+                throw new \Exception("Unable to encode character: " . $char);
+            }
             $encoded .= $this->mappings[$binary];
         }
         return $encoded;
     }
 
     /**
-     * Decoding logic
+     * decoding logic
      * @param string $encodedStr
-     * @return string
+     * @return Decoded
      */
-    public function decode(string $encodedStr): string
+    public function decode(string $encodedStr): Decoded
     {
         $decoded = '';
         $chunks = preg_split('//u', $encodedStr, -1, PREG_SPLIT_NO_EMPTY);
@@ -143,16 +161,14 @@ class Mappings
             }
         }
 
-        if (str_starts_with($decoded, "<?php")) {
-            $decoded = substr($decoded, 6);
-        }
-        if (str_ends_with($decoded, "?>")) {
-            $decoded = substr($decoded, 0, -3);
-        }
 
-        return $decoded;
+        return new Decoded($decoded, $this->type, $this->seed);
     }
 
+    /**
+     * @param $unicodeSet
+     * @return array
+     */
     private function generateMappings($unicodeSet): array
     {
         srand($this->seed);  // Initialize random generator with the seed
@@ -173,6 +189,13 @@ class Mappings
         return $mappings;
     }
 
+    /**
+     * @param array $set
+     * @param string $prefix
+     * @param int $comboLength
+     * @param array $combinations
+     * @return void
+     */
     private function generateCombinationsRecursive(
         array $set,
         string $prefix,
@@ -188,7 +211,11 @@ class Mappings
         }
     }
 
-    public static function getUnicodeRange($type): ?array
+    /**
+     * @param string $type
+     * @return int[]|null
+     */
+    public static function getUnicodeRange(string $type): ?array
     {
         return match ($type) {
             self::TYPE_OGHAM => [0x1680, 0x169A],
@@ -213,24 +240,40 @@ class Mappings
         };
     }
 
-    public static function sniffTypeSet(string $shebang): string
+    /**
+     * @param string $sample
+     * @return bool|string
+     */
+    public static function sniffTypeSet(string $sample): bool|string
     {
         $countryCodes = CountryCodes::getUnicodeSet();
-        if (in_array(mb_substr($shebang, 0, 2), $countryCodes)) {
+        if (in_array(mb_substr($sample, 0, 2), $countryCodes)) {
             return self::TYPE_FLAGS;
         }
-        $charCode = mb_ord(mb_substr($shebang, 0, 1), 'UTF-8');
+        $char = mb_substr($sample, 0, 1);
+        if (!$char) {
+            return false;
+        }
+        $charCode = mb_ord(mb_substr($sample, 0, 1), 'UTF-8');
         for ($i = 0; $i < count(self::ALL_TYPES); $i++) {
             $checkType = self::ALL_TYPES[$i];
+            if ($checkType === self::TYPE_FLAGS) {
+                continue;
+            }
             list($start, $end) = self::getUnicodeRange($checkType);
             if ($charCode >= $start && $charCode <= $end) {
                 return $checkType;
             }
         }
-        throw new \Exception("Failed to determine type!");
+        return false;
     }
 
-    public static function validateType(string $contents, $type): bool
+    /**
+     * @param string $type
+     * @param string $contents
+     * @return bool
+     */
+    public static function validateType(string $type, string $contents): bool
     {
         list($minCode, $maxCode) = Mappings::getUnicodeRange($type);
         for ($i = 0; $i < mb_strlen($contents); $i++) {
@@ -243,6 +286,11 @@ class Mappings
         return true;
     }
 
+    /**
+     * @param int $from
+     * @param int $to
+     * @return array
+     */
     public static function generateUnicodeSet(int $from, int $to): array
     {
         $set = [];
@@ -252,6 +300,11 @@ class Mappings
         return $set;
     }
 
+    /**
+     * @param int $setSize
+     * @param int $numBits
+     * @return int
+     */
     public static function determineComboLength(int $setSize, int $numBits): int
     {
         // e.g., 65536 for 16-bit encoding

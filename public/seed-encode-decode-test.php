@@ -20,7 +20,7 @@ echo "Hello from $type!";
 PHP;
     echo "PHP : ".htmlspecialchars($php)."<br>".PHP_EOL;
     $encoded = $unicoder->encode($php, $type, $seed);
-    $decoded = $unicoder->decode($encoded, $type, $seed);
+    $decoded = $unicoder->decode($encoded, $seed);
     echo "Encoded : ".$encoded."<br>".PHP_EOL;
     echo "Decoded : ".htmlspecialchars($decoded)."<br>".PHP_EOL;
 
