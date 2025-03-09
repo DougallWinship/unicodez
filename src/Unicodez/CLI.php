@@ -50,11 +50,15 @@ class CLI
 
         $this->arguments->addFlag(['verbose'], ['description' => "Turn on verbose output", 'default' => false]);
         $this->arguments->addFlag(['quiet', 'q'], ['description' => "Disable all output", 'default' => false]);
-        $this->arguments->addFlag(['recursive', 'r'], ['description' => "Recursively encode/decode files", 'default' => false]);
+        $this->arguments->addFlag(['recursive', 'r'], [
+            'description' => "Recursively encode/decode files", 'default' => false
+        ]);
         $this->arguments->addFlag(['write', 'w'], ['description' => "Write output to files", 'default' => false]);
         $this->arguments->addFlag(['nobackup'], ['description' => "Don't Backup files if writing", 'default' => false]);
 
-        $this->arguments->addOption(['target','t'], ['description' => "Target file/directory", 'default' => $this->baseDir]);
+        $this->arguments->addOption(['target','t'], [
+            'description' => "Target file/directory", 'default' => $this->baseDir
+        ]);
         $this->arguments->addOption(['flavour', 'f'], "Type : 'seed' or 'shebang'");
         $this->arguments->addOption(['map','m'], "Mapping to use for encoding/decoding");
         $this->arguments->addOption(['seed','s'], "Seed to use for encoding/decoding");
@@ -95,8 +99,7 @@ class CLI
             } elseif ($file->isPHP()) {
                 $this->out("%C" . $file->getFilePath() . " : %G" . $file->getSummary());
                 $hasFiles = true;
-            }
-            else {
+            } else {
                 $this->out("%C" . $file->getFilePath() . " : %G" . $file->getSummary());
             }
         }
