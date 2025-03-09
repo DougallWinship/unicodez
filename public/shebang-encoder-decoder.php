@@ -1,9 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+require_once("layout-prepare.php");
 
-require dirname(__DIR__).'/vendor/autoload.php';
+$title = "Unicodez : Shebang Encoder/Decoder";
 
 $types = \Unicodez\Mappings::ALL_TYPES;
 
@@ -39,18 +37,6 @@ if ($type) {
     }
 }
 ?>
-<!doctype html>
-<html lang="en">
-<head>
-    <title>Unicoder : Encode/Decode</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-<h1 style="margin-bottom:0">Unicoder : Shebang Encode/Decode</h1>
-<?php if (isset($unicoder)) /* {?>
-<div style="position:relative;top:-10px;">Num bits = <?= $unicoder->getBits(); ?></div>
-<?php }  */ ?>
 <form action="" method="post">
     <label>
         <textarea name="unencoded" rows="12" cols="80" style="<?= $unencoded ? 'background-color:#efe' : ''?>"><?= $unencoded ?></textarea>
@@ -92,5 +78,5 @@ if ($type) {
         <?php } ?>
     <?php } ?>
 </form>
-</body>
-</html>
+<?php
+require_once("layout-render.php");

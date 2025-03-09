@@ -101,7 +101,9 @@ class File
     {
         return match ($this->fileType) {
             self::FILETYPE_OTHER =>
-                "Other ." . $this->pathInfo['extension'] . " File",
+                array_key_exists('extension', $this->pathInfo)
+                    ? "Other ." . $this->pathInfo['extension'] . " File"
+                    : "Other ".$this->pathInfo['filename'] . " File",
             self::FILETYPE_UNENCODED_PHP =>
                 "PHP File",
             self::FILETYPE_ENCODED_SHEBANG =>

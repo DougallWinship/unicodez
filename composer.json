@@ -8,6 +8,7 @@
       "psr-4": {"Unicodez\\": "src/Unicodez/"}
   },
   "require": {
+    "php":">=8.3",
     "ext-mbstring": "*",
     "wp-cli/php-cli-tools": "^0.12.1"
   }

@@ -1,8 +1,7 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-require dirname(__DIR__).'/vendor/autoload.php';
+require_once("layout-prepare.php");
+
+$title = "Unicodez : Seed Encode/Decode Test";
 
 $seed = intval($_GET["seed"] ?? 1);
 ?>
@@ -11,7 +10,6 @@ $seed = intval($_GET["seed"] ?? 1);
 </form>
 <br><br><hr><br>
 <?php
-
 foreach (\Unicodez\Mappings::ALL_TYPES as $type) {
     $unicoder = new \Unicodez\SeedUnicodez();
     echo "Type : ".$type."<br>".PHP_EOL;
@@ -31,3 +29,4 @@ PHP;
 
     echo "<br><br><hr><br>".PHP_EOL;
 }
+require_once("layout-render.php");

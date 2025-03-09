@@ -8,6 +8,6 @@
 <h2>Seed</h2>
 <ul>
     <li><a href="seed-encoder-decoder.php">Seed Encoder/Decoder</a></li>
-    <li><a href="shebang-encode-decode-test.php">Seed Encode/Decode Test</a></li>
+    <li><a href="seed-encode-decode-test.php">Seed Encode/Decode Test</a></li>
     <li><a href="seed-autoload-test.php">Seed Autoload Test</a></li>
 </ul>
