@@ -23,7 +23,7 @@ if ($type) {
     }
     else if (isset($_POST['do-decode'])) {
         $unicoder = new \Unicodez\SeedUnicodez();
-        $unencoded = $unicoder->decode($encoded, $type, $seed);
+        $unencoded = $unicoder->decode($encoded, $seed);
         $encoded = '';
     }
     else if (isset($_POST['do-eval'])) {
